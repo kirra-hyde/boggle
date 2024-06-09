@@ -22,9 +22,31 @@ async function start() {
 /** Display board */
 
 function displayBoard(board) {
-  // $table.empty();
-  // loop over board and create the DOM tr/td structure
+  $table.empty();
+  const $body = $("<tbody>");
+  for (let row of board) {
+    const $row = $("<tr>");
+    for (let cell of row) {
+      const $cell = $(`<td>${cell}</td>`);
+      $row.append($cell);
+    }
+    $body.append($row);
+  }
+  $table.append($body);
 }
 
+async function playWord(evt) {
+  evt.preventDefault();
+  $message.empty();
+  const word = $wordInput.val();
+  const resp = await axios.post("/api/score-word", {word: word, gameId: gameId});
+  if (resp.data.result !== "ok") {
+    $message.text("Not a valid word on the board");
+  } else {
+    $playedWords.append(`<li>${word}</li>`);
+  }
+}
+
+$form.on("submit", playWord);
 
 start();
