@@ -2,6 +2,7 @@ from unittest import TestCase
 
 from app import app, games
 from boggle import BoggleGame
+from flask import session
 
 # Make Flask errors be real errors, not HTML pages with error info
 app.config['TESTING'] = True
@@ -23,11 +24,15 @@ class BoggleAppTestCase(TestCase):
         """Make sure information is in the session and HTML is displayed"""
 
         with self.client as client:
+            with client.session_transaction() as change_session:
+                change_session["high_score"] = 2
+
             response = client.get('/')
             html = response.get_data(as_text=True)
             # test that you're getting a template
             self.assertEqual(response.status_code, 200)
             self.assertIn('<table class="board">', html)
+            self.assertIn('<h3 id="high-score">High Score: 2</h3>', html)
 
     def test_api_new_game(self):
         """Test starting a new game."""
@@ -88,3 +93,25 @@ class BoggleAppTestCase(TestCase):
             not_on_board_data = resp_not_on_board.get_json()
 
             self.assertEqual(not_on_board_data, {"result": "not-on-board"})
+
+    def test_end_game(self):
+        """Test updating high score at end of game"""
+
+        with self.client as client:
+            with client.session_transaction() as change_session:
+                change_session["high_score"] = 2
+
+            resp = client.post("/api/new-game")
+            id = resp.get_json()["gameId"]
+            game = games[id]
+            game.score = 2
+
+            resp_end = client.post("/api/end-game", json={"id": id})
+            end_data = resp_end.get_json()
+            self.assertEqual(end_data, {"updated": False, "score": 2})
+
+            game.score = 5
+            resp_high_score = client.post("/api/end-game", json={"id": id})
+            high_score_data = resp_high_score.get_json()
+            self.assertEqual(high_score_data, {"updated": True, "score": 5})
+            self.assertEqual(session["high_score"], 5)
