@@ -52,14 +52,28 @@ class BoggleAppTestCase(TestCase):
             resp = client.post("/api/new-game")
             id = resp.get_json()["gameId"]
             game = games[id]
-            game.board = [["C", "A", "T"],["X", "X", "X"],["X", "X", "X"]]
+            game.board = [["C", "A", "T"],["X", "X", "S"],["X", "X", "X"]]
 
             good_resp = client.post(
                 "/api/score-word", json={"word": "cat", "gameId": id}
             )
             good_data = good_resp.get_json()
 
-            self.assertEqual(good_data, {"result": "ok", "score": 1})
+            self.assertEqual(good_data, {"result": "ok", "score": 1, "totalScore": 1})
+
+            good_resp_2 = client.post(
+                "/api/score-word", json={"word": "cats", "gameId": id}
+            )
+            good_data_2 = good_resp_2.get_json()
+
+            self.assertEqual(good_data_2, {"result": "ok", "score": 1, "totalScore": 2})
+
+            dup_resp = client.post(
+                "/api/score-word", json={"word": "cat", "gameId": id}
+            )
+            dup_data = dup_resp.get_json()
+
+            self.assertEqual(dup_data, {"result": "duplicate"})
 
             resp_invalid_word = client.post(
                 "/api/score-word", json={"word": "tac", "gameId": id}
@@ -73,5 +87,4 @@ class BoggleAppTestCase(TestCase):
             )
             not_on_board_data = resp_not_on_board.get_json()
 
-            self.assertEqual(not_on_board_data["result"], "not-on-board")
             self.assertEqual(not_on_board_data, {"result": "not-on-board"})

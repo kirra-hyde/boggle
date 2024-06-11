@@ -8,6 +8,8 @@
 <body>
 
 <main>
+  <h1 id="end-message"></h1>
+  <h2 id="timer"></h2>
   <table class="board"></table>
 
   <form id="newWordForm">
@@ -17,18 +19,31 @@
         autofocus aria-label="Word"
         minlength="3"
         required>
-    <button class="word-input-btn">Go</button>
+    <button type="button" class="word-input-btn">Go</button>
   </form>
+  <br>
+  <button id="restart" class="button">Play again?</button>
 
+  <p class="msg">
+    <!-- Error messages go here -->
+  </p>
 </main>
 
-<p class="msg">
-  <!-- our JS will put messages here dynamically -->
-</p>
+<div id="right">
+  <h3 id="high-score">High Score: {{ high_score }}</h3>
+  <ul id="words">
+    <!-- Played words go here -->
+  </ul>
+</div>
 
-<ul id="words"> 
-  <!-- our JS will words here as they score -->
-</ul>
+
+<div id="left">
+  <h3 id="total-score">Score: 0</h3>
+  <h4 id="word-score"></h4>
+</div>
+
+
+<h1 id="end-message"></h1>
 
 <script src="http://unpkg.com/jquery"></script>
 <script src="https://unpkg.com/axios/dist/axios.js"></script>
