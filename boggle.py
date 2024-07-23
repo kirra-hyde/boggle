@@ -70,9 +70,9 @@ class BoggleGame():
         self.score = 0
 
     def __repr__(self):
-        board_text = ".".join(["".join(row) for row in self.board])
-        return (f"<BoggleGame board={board_text}"
-                + f" played_words={self.played_words}>")
+        board_text = "\n".join([",".join(row) for row in self.board])
+        return (f"<{self.__class__.__name__} score={self.score} " +
+                f"played_words={self.played_words} \nboard: \n{board_text}")
 
     def get_random_board(self, fill_letters):
         """Return a random board (a list of lists)."""
